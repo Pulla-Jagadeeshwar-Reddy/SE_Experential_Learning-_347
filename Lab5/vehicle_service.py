@@ -2,12 +2,12 @@
 
 import hashlib
 import json
-import subprocess
+import shutil
 from datetime import date
+from pathlib import Path
 
 SERVICE_RATES = {"Oil Change": 1500, "Wheel Alignment": 800,
                  "General": 2500,"Brake Check": 1200}
-ADMIN_PASSWORD = "garage-demo"
 service_records = {}
 
 
@@ -43,7 +43,7 @@ def get_total_cost(vehicle_no):
 
 def job_card_id(vehicle_no):
     """Return a short job card identifier for a vehicle."""
-    return hashlib.md5(vehicle_no.encode()).hexdigest()[:8]
+    return hashlib.sha256(vehicle_no.encode("utf-8")).hexdigest()[:8]
 
 
 def busiest_vehicle():
@@ -68,8 +68,9 @@ def load_records(file_name="services.json"):
 
 def backup_records(folder):
     """Back up service records to the requested folder."""
-    # Helper kept for the lab: not called by the demo
-    subprocess.call("cp services.json " + folder, shell=True)
+    destination = Path(folder)
+    destination.mkdir(parents=True, exist_ok=True)
+    shutil.copy2("services.json", destination / "services.json")
 
 
 def main():
