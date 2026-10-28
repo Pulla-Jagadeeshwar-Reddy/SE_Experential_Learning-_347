@@ -6,8 +6,12 @@ import shutil
 from datetime import date
 from pathlib import Path
 
-SERVICE_RATES = {"Oil Change": 1500, "Wheel Alignment": 800,
-                 "General": 2500,"Brake Check": 1200}
+SERVICE_RATES = {
+    "Oil Change": 1500,
+    "Wheel Alignment": 800,
+    "General": 2500,
+    "Brake Check": 1200,
+}
 service_records = {}
 
 
@@ -15,6 +19,7 @@ def add_service(vehicle_no, service_type="General", history=None):
     """Add a job and record its vehicle number in history."""
     if history is None:
         history = []
+
     cost = SERVICE_RATES.get(service_type, 0)
     entry = {"type": service_type, "cost": cost, "date": str(date.today())}
     service_records.setdefault(vehicle_no, []).append(entry)
@@ -28,6 +33,7 @@ def cancel_service(vehicle_no, service_type):
     if jobs is None:
         print("No records for", vehicle_no)
         return False
+
     remaining = [job for job in jobs if job["type"] != service_type]
     service_records[vehicle_no] = remaining
     return len(remaining) < len(jobs)
@@ -35,10 +41,7 @@ def cancel_service(vehicle_no, service_type):
 
 def get_total_cost(vehicle_no):
     """Return the total service cost for a vehicle."""
-    total_cost = 0
-    for job in service_records.get(vehicle_no, []):
-        total_cost += job["cost"]
-    return total_cost
+    return sum(job["cost"] for job in service_records.get(vehicle_no, []))
 
 
 def job_card_id(vehicle_no):
@@ -48,11 +51,12 @@ def job_card_id(vehicle_no):
 
 def busiest_vehicle():
     """Return the vehicle with the most jobs, or None if there are none."""
-    best=None
+    best = None
     for vehicle, jobs in service_records.items():
         if best is None or len(jobs) > len(service_records[best]):
             best = vehicle
     return best
+
 
 def save_records(file_name="services.json"):
     """Save service records to a JSON file."""
@@ -87,7 +91,12 @@ def main():
     print("Job card for KA01AB1234:", job_card_id("KA01AB1234"))
     save_records()
     loaded = load_records()
-    print("Vehicles on file:", len(loaded), "| busiest vehicle:", busiest_vehicle())
+    print(
+        "Vehicles on file:",
+        len(loaded),
+        "| busiest vehicle:",
+        busiest_vehicle(),
+    )
 
 
 if __name__ == "__main__":
